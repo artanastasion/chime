@@ -28,6 +28,11 @@ class Settings(BaseSettings):
     rustfs_secure: bool = False
     rustfs_bucket_media: str = "music-media"
 
+    kafka_bootstrap_servers: str | None = None
+    kafka_client_id: str = "chime-api"
+    analytics_access_log_topic: str = "chime.api.access-log"
+    analytics_app_events_topic: str = "chime.app.events"
+
     @property
     def database_url(self) -> URL:
         return URL.create(
