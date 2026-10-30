@@ -7,10 +7,13 @@ from collections.abc import AsyncIterator
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.analytics.publisher import event_publisher
 from app.core.config import settings
 from app.db.session import async_session_factory
 from app.services.catalog import CatalogService
+from app.services.events import EventIngestService
 from app.services.media_assets import MediaService
+from app.services.users import UserService
 from app.storage.client import storage_client
 from app.storage.service import StorageService
 
@@ -43,3 +46,11 @@ def get_media_service(
     """
     storage = StorageService(storage_client, settings.storage_bucket)
     return MediaService(session, storage)
+
+
+def get_event_ingest_service() -> EventIngestService:
+    return EventIngestService(event_publisher, settings.analytics_app_events_topic)
+
+
+def get_user_service(session: AsyncSession = Depends(get_session)) -> UserService:
+    return UserService(session)

@@ -4,6 +4,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from sqlalchemy import text
 
+from app.analytics.access_log import AccessLogMiddleware
+from app.analytics.publisher import event_publisher
 from app.api.errors import register_exception_handlers
 from app.api.v1 import api_router
 from app.core.config import settings
@@ -25,9 +27,11 @@ async def lifespan(app: FastAPI):
     # Fail fast with a clear diagnostic when RustFS is not usable:
     # the API must not report a healthy storage when it is not.
     await storage_service.ensure_bucket()
+    await event_publisher.start()
 
     yield
 
+    await event_publisher.stop()
     await engine.dispose()
 
 
@@ -39,6 +43,11 @@ app = FastAPI(
 )
 
 register_exception_handlers(app)
+app.add_middleware(
+    AccessLogMiddleware,
+    publisher=event_publisher,
+    topic=settings.analytics_access_log_topic,
+)
 app.include_router(api_router)
 
 
@@ -68,4 +77,3 @@ async def health_check() -> dict:
         payload["errors"] = errors
         raise HTTPException(status_code=503, detail=payload)
     return payload
-
