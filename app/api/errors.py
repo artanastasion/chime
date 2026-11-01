@@ -12,6 +12,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import IntegrityError
 
+from app.analytics.publisher import EventPublisherUnavailableError
 from app.services import errors as service_errors
 from app.storage.service import StorageError, StorageUnavailableError
 
@@ -90,6 +91,13 @@ def register_exception_handlers(app: FastAPI) -> None:
     ) -> JSONResponse:
         logger.error("Object storage unavailable: %s", exc)
         return _json(503, "object storage is unavailable")
+
+    @app.exception_handler(EventPublisherUnavailableError)
+    async def _event_bus_unavailable(
+        request: Request, exc: Exception
+    ) -> JSONResponse:
+        logger.error("Event bus unavailable: %s", exc)
+        return _json(503, "event ingestion is temporarily unavailable")
 
     @app.exception_handler(StorageError)
     async def _storage_error(request: Request, exc: Exception) -> JSONResponse:

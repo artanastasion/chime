@@ -27,6 +27,7 @@ from app.models import (
     StorageObject,
     Track,
     TrackArtist,
+    User,
 )
 from app.storage.client import storage_client
 from app.storage.service import StorageService
@@ -46,7 +47,7 @@ async def wipe_all() -> None:
                 await storage.delete(obj.object_key)
             except Exception:
                 pass  # object may already be gone
-        for model in (MediaAsset, StorageObject, TrackArtist, Track, Album, Artist):
+        for model in (MediaAsset, StorageObject, TrackArtist, Track, Album, Artist, User):
             await session.execute(delete(model))
         await session.commit()
     await engine.dispose()

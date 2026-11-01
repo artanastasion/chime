@@ -1,0 +1,8 @@
+kafka:
+  brokers:
+    - redpanda:9092
+connect:
+  enabled: true
+  clusters:
+    - name: debezium
+      url: http://connect:8083
