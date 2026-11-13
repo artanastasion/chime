@@ -6,12 +6,12 @@ import uuid
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, String, Uuid, text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, TimestampMixin
 
 if TYPE_CHECKING:
-    pass
+    from app.models.features import TranslationLink, TranslationResult, UserTastePreference
 
 
 class User(TimestampMixin, Base):
@@ -26,4 +26,20 @@ class User(TimestampMixin, Base):
         nullable=False,
         default=True,
         server_default=text("true"),
+    )
+
+    taste_preferences: Mapped[list[UserTastePreference]] = relationship(
+        "UserTastePreference",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    sent_translation_links: Mapped[list[TranslationLink]] = relationship(
+        "TranslationLink",
+        back_populates="sender",
+        cascade="all, delete-orphan",
+    )
+    translation_results: Mapped[list[TranslationResult]] = relationship(
+        "TranslationResult",
+        back_populates="recipient",
+        cascade="all, delete-orphan",
     )

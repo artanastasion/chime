@@ -62,3 +62,11 @@ class DuplicateLinkError(ValueError):
 
     Maps to 409 in the API.
     """
+
+
+class TranslationTokenError(ValueError):
+    """A translation link token is invalid, expired, or revoked."""
+
+
+class TranslationResultConflictError(ValueError):
+    """A translation result conflicts with the current request state."""
