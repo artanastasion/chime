@@ -15,6 +15,7 @@ from app.db.base import Base, TimestampMixin, enum_values
 if TYPE_CHECKING:
     from app.models.album import Album
     from app.models.artist import Artist
+    from app.models.features import TrackFeature, TranslationLink, TranslationResult
     from app.models.media_asset import MediaAsset
     from app.models.track_artist import TrackArtist
 
@@ -75,5 +76,21 @@ class Track(TimestampMixin, Base):
     media_assets: Mapped[list[MediaAsset]] = relationship(
         "MediaAsset",
         back_populates="track",
+    )
+    features: Mapped[TrackFeature | None] = relationship(
+        "TrackFeature",
+        back_populates="track",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
+    translation_links: Mapped[list[TranslationLink]] = relationship(
+        "TranslationLink",
+        back_populates="source_track",
+        cascade="all, delete-orphan",
+    )
+    translation_results: Mapped[list[TranslationResult]] = relationship(
+        "TranslationResult",
+        back_populates="target_track",
+        cascade="all, delete-orphan",
     )
 

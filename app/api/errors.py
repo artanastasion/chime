@@ -67,6 +67,16 @@ def register_exception_handlers(app: FastAPI) -> None:
     async def _duplicate_link(request: Request, exc: Exception) -> JSONResponse:
         return _json(409, str(exc))
 
+    @app.exception_handler(service_errors.TranslationTokenError)
+    async def _translation_token_error(request: Request, exc: Exception) -> JSONResponse:
+        return _json(400, str(exc))
+
+    @app.exception_handler(service_errors.TranslationResultConflictError)
+    async def _translation_result_conflict(
+        request: Request, exc: Exception
+    ) -> JSONResponse:
+        return _json(409, str(exc))
+
     @app.exception_handler(IntegrityError)
     async def _integrity(request: Request, exc: IntegrityError) -> JSONResponse:
         state = _sqlstate(exc)
